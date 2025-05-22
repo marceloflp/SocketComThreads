@@ -10,11 +10,12 @@ import java.util.List;
 import java.util.Set;
 
 public class Servidor {
-
+	public static Set<String> listaClientes = Collections.synchronizedSet(new HashSet<>());
+	public static List<Socket> conexoesAtivas = Collections.synchronizedList(new ArrayList<>());
+	
 	public static void main(String[] args) {
 
-		Set<String> listaClientes = Collections.synchronizedSet(new HashSet<>());
-		List<Socket> conexoesAtivas = Collections.synchronizedList(new ArrayList<>());
+		
 
 		final int PORTA = 5500;
 		final int MAX_CONEXOES = 5;
@@ -49,5 +50,7 @@ public class Servidor {
             System.err.println("Erro no servidor: " + e.getMessage());
         }
 	}
+	
+	
 
 }
