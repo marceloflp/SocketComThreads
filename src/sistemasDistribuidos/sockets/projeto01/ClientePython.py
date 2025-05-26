@@ -18,7 +18,7 @@ def ler_utf(mensagem):
         dados += parte
     return dados.decode('utf-8')
 
-def principal():
+def main():
     HOST = 'localhost'
     PORTA = 5500
 
@@ -46,5 +46,5 @@ def principal():
         conexao.close()
 
 if __name__ == '__main__':
-    principal()
+    main()
 
