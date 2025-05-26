@@ -1,5 +1,6 @@
 package sistemasDistribuidos.sockets.projeto01;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -30,6 +31,11 @@ public class Servidor {
                 synchronized (listaClientes) {
                     if (listaClientes.contains(ipCliente)) {
                         System.out.println("ERRO: IP já conectado: " + ipCliente);
+                        
+                        DataOutputStream saida = new DataOutputStream(cliente.getOutputStream());
+                        
+                        saida.writeUTF("ERRO: IP já conectado! Digite qualquer coisa para sair."); 
+                        saida.close();
                         cliente.close();
                         continue;
                     }
@@ -47,6 +53,7 @@ public class Servidor {
                 }
             }
         } catch (IOException e) {
+        	System.out.println(e.getMessage());
             System.err.println("Erro no servidor: " + e.getMessage());
         }
 	}

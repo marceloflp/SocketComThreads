@@ -24,7 +24,7 @@ public class Cliente {
 			while(true) {
 				System.out.print("> ");
 				mensagem = input.nextLine();
-				
+								
 				if(mensagem.equalsIgnoreCase("sair")) break;
 				
 				saida.writeUTF(mensagem);
@@ -37,7 +37,7 @@ public class Cliente {
 			e.printStackTrace();
 		} catch (IOException e) {
 
-			e.printStackTrace();
+			System.out.println("Conexão Encerrada!");
 		}
 
 	}

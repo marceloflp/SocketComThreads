@@ -16,6 +16,7 @@ public class Comunicacao implements Runnable {
 	public Comunicacao(Socket conexao) throws IOException {
 		super();
 		this.conexao = conexao;
+		this.conexao.setSoTimeout(120000);
 		this.entrada = new DataInputStream(conexao.getInputStream());
 		this.saida = new DataOutputStream(conexao.getOutputStream());
 	}
@@ -24,46 +25,51 @@ public class Comunicacao implements Runnable {
 	public void run() {
 		String ip = conexao.getInetAddress().getHostAddress();
 		try {
-
 			while (true) {
-				String comando = entrada.readUTF();
-				System.out.println("Recebido de " + ip + ": " + comando);
+				try {
+					String comando = entrada.readUTF();
+					System.out.println("Recebido de " + ip + ": " + comando);
 
-				switch (comando.toLowerCase()) {
-				case "comando:1":
-					String data = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-					saida.writeUTF("Data atual: " + data);
-					break;
+					switch (comando.toLowerCase()) {
+					case "comando:1":
+						String data = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+						saida.writeUTF("Data atual: " + data);
+						break;
 
-				case "comando:2":
-					String hora = new SimpleDateFormat("HH:mm:ss").format(new Date());
-					saida.writeUTF("Hora atual: " + hora);
-					break;
+					case "comando:2":
+						String hora = new SimpleDateFormat("HH:mm:ss").format(new Date());
+						saida.writeUTF("Hora atual: " + hora);
+						break;
 
-				case "comando:3":
-					String info = "Servidor IP: " + conexao.getLocalAddress().getHostAddress() + " | Porta: "
-							+ conexao.getLocalPort() + "\nCliente IP: " + conexao.getInetAddress().getHostAddress()
-							+ " | Porta: " + conexao.getPort() + "\nStatus: Conexão ativa.";
-					saida.writeUTF(info);
-					break;
+					case "comando:3":
+						String info = "Servidor IP: " + conexao.getLocalAddress().getHostAddress() + " | Porta: "
+								+ conexao.getLocalPort() + "\nCliente IP: " + conexao.getInetAddress().getHostAddress()
+								+ " | Porta: " + conexao.getPort() + "\nStatus: Conexão ativa.";
+						saida.writeUTF(info);
+						break;
 
-				case "comando:4":
-					StringBuilder lista = new StringBuilder("IPs conectados:\n");
-					synchronized (Servidor.listaClientes) {
-						for (String ipConectado : Servidor.listaClientes) {
-							lista.append(ipConectado).append("\n");
+					case "comando:4":
+						StringBuilder lista = new StringBuilder("IPs conectados:\n");
+						synchronized (Servidor.listaClientes) {
+							for (String ipConectado : Servidor.listaClientes) {
+								lista.append(ipConectado).append("\n");
+							}
 						}
+						saida.writeUTF(lista.toString());
+						break;
+
+					case "sair":
+						saida.writeUTF("Conexão encerrada.");
+						System.out.println("Cliente " + ip + " desconectou.");
+						return;
+
+					default:
+						saida.writeUTF(comando);
 					}
-					saida.writeUTF(lista.toString());
+				} catch (java.net.SocketTimeoutException e) {
+					System.out.println("Tempo limite de conexão excedido! Encerrando conexão com " + ip);
+					saida.writeUTF("Tempo limite de conexão excedido! Encerrando conexão com " + ip);
 					break;
-
-				case "sair":
-					saida.writeUTF("Conexão encerrada.");
-					System.out.println("Cliente " + ip + " desconectou.");
-					return;
-
-				default:
-					saida.writeUTF("Comando inválido.");
 				}
 			}
 		} catch (IOException e) {
